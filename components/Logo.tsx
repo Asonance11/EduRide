@@ -5,7 +5,7 @@ export default function Logo() {
   return (
     <Link href="/">
       <div className="text-black text-2xl font-bold hover:opacity-75 transition hidden md:flex">
-        Eduride
+        EduRide
       </div>
     </Link>
   );
