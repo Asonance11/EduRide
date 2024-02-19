@@ -4,6 +4,7 @@ import Logo from '@/components/Logo';
 import { UserButton } from '@clerk/nextjs';
 import { User } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
+import MobileSidebar from './MobileSidebar';
 
 export default function PlatformNavbar() {
   const [profile, setProfile] = useState<User | null>(null);
@@ -23,7 +24,7 @@ export default function PlatformNavbar() {
 
   return (
     <nav className="fixed z-50 top-0 px-4 w-full h-14 border-b shadow-sm bg-white flex items-center">
-      {/* TODO: Mobile Sidebar*/}
+      <MobileSidebar />
       <div className="flex items-center gap-x-4">
         <div className="hidden md:flex">
           <Logo />
