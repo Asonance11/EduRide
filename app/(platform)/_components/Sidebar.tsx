@@ -3,7 +3,7 @@ import NavItem from './Nav-item';
 
 export default function Sidebar() {
   return (
-    <div>
+    <div className="font-medium text-xs flex items-center mb-1">
       <NavItem />
     </div>
   );
