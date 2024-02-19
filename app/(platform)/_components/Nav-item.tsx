@@ -42,7 +42,7 @@ export default function NavItem() {
       {routes.map((route) => (
         <Button
           key={route.href}
-          size="sm"
+          size="default"
           onClick={() => onClick(route.href)}
           className={cn(
             'w-full font-normal justify-start pl-10 mb-1',
