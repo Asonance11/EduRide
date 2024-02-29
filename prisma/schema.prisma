@@ -2,29 +2,55 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
 }
 
 enum UserRole {
-  ADMIN
-  STUDENT
-  DRIVER
+    ADMIN
+    STUDENT
+    DRIVER
+}
+
+enum RideStatus {
+    BOOKED
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @unique
-  email     String   @unique
-  firstname String
-  lastname  String
-  imageUrl  String
-  role      UserRole @default(STUDENT)
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    userId    String   @unique
+    email     String   @unique
+    firstname String
+    lastname  String
+    imageUrl  String
+    role      UserRole @default(STUDENT)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    ridesAsPassenger Ride[] @relation("passengerRides")
+    ridesAsDriver    Ride[] @relation("driverRides")
+}
+
+model Ride {
+    id          String     @id @default(auto()) @map("_id") @db.ObjectId
+    rideId      String     @unique
+    status      RideStatus @default(BOOKED)
+    pickupPoint String
+    destination String
+    startTime   DateTime
+    endTime     DateTime
+    passenger   User       @relation("passengerRides", fields: [passengerId], references: [id])
+    passengerId String     @db.ObjectId
+    driver      User?      @relation("driverRides", fields: [driverId], references: [id])
+    driverId    String?    @db.ObjectId
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
 }
