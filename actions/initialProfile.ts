@@ -15,21 +15,7 @@ export async function initialProfile(): Promise<User | null> {
     },
   });
 
-  if (user) {
-    return user;
-  }
-
-  const newUser = await db.user.create({
-    data: {
-      userId: loggedUser.id,
-      firstname: loggedUser?.firstName!,
-      lastname: loggedUser?.lastName!,
-      imageUrl: loggedUser.imageUrl,
-      email: loggedUser.emailAddresses[0].emailAddress,
-    },
-  });
-
-  return newUser;
+  return user;
 }
 
 export type UserType = Awaited<ReturnType<typeof initialProfile>>;
