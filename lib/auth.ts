@@ -13,7 +13,9 @@ export const currentRole = async () => {
     },
   });
 
-  if (user) {
-    return user.role;
+  if (!user) {
+    return null;
   }
+
+  return user.role;
 };
