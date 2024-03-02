@@ -2,36 +2,31 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { CarTaxiFront, History, LayoutDashboard, Settings } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { UserRole } from '@prisma/client';
+import { currentRole } from '@/lib/auth';
 
 export default function NavItem() {
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
-  const routes = [
-    {
-      label: 'Dashboard',
-      icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
-      href: '/dashboard',
-    },
-    {
-      label: 'Book Ride',
-      icon: <CarTaxiFront className="h-4 w-4 mr-2" />,
-      href: '/dashboard/book-ride',
-    },
-    {
-      label: 'History',
-      icon: <History className="h-4 w-4 mr-2" />,
-      href: '/dashboard/history',
-    },
-    {
-      label: 'Settings',
-      icon: <Settings className="h-4 w-4 mr-2" />,
-      href: '/dashboard/settings',
-    },
-  ];
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const role = await currentRole();
+        setUserRole(role);
+      } catch (error) {
+        console.log('Error fetching user role', error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
+
+  const routes = userRole === 'DRIVER' ? getDriverRoutes() : getStudentRoutes();
 
   const onClick = (href: string) => {
     router.push(href);
@@ -57,4 +52,49 @@ export default function NavItem() {
       ))}
     </div>
   );
+}
+
+function getDriverRoutes() {
+  return [
+    {
+      label: 'Dashboard',
+      icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
+      href: '/dashboard',
+    },
+    {
+      label: 'History',
+      icon: <History className="h-4 w-4 mr-2" />,
+      href: '/dashboard/history',
+    },
+    {
+      label: 'Settings',
+      icon: <Settings className="h-4 w-4 mr-2" />,
+      href: '/dashboard/settings',
+    },
+  ];
+}
+
+function getStudentRoutes() {
+  return [
+    {
+      label: 'Dashboard',
+      icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
+      href: '/dashboard',
+    },
+    {
+      label: 'Book Ride',
+      icon: <CarTaxiFront className="h-4 w-4 mr-2" />,
+      href: '/dashboard/book-ride',
+    },
+    {
+      label: 'History',
+      icon: <History className="h-4 w-4 mr-2" />,
+      href: '/dashboard/history',
+    },
+    {
+      label: 'Settings',
+      icon: <Settings className="h-4 w-4 mr-2" />,
+      href: '/dashboard/settings',
+    },
+  ];
 }
