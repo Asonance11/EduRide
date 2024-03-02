@@ -1,6 +1,8 @@
+'use server'
 import db from '@/lib/db';
 import { currentUser } from '@clerk/nextjs';
 import { UserRole } from '@prisma/client';
+import { redirect } from 'next/navigation';
 
 export const createUser = async (role: UserRole) => {
   const loggedUser = await currentUser();
@@ -18,4 +20,6 @@ export const createUser = async (role: UserRole) => {
       role: role,
     },
   });
+
+    redirect('/dashboard')
 };

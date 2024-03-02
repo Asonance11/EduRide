@@ -16,7 +16,6 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { createUser } from '@/actions/createUser';
 import { toast } from 'sonner';
-import { redirect } from 'next/navigation';
 
 const FormSchema = z.object({
   role: z.enum(['STUDENT', 'DRIVER', 'ADMIN'], {
@@ -33,7 +32,6 @@ export default function SelectRoleForm() {
     try {
       await createUser(data.role);
       toast.success('Account succesfully created');
-      redirect('/dashboard');
     } catch (error) {
       console.log(error);
       toast.error('An error occured');
@@ -42,7 +40,7 @@ export default function SelectRoleForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="role"
