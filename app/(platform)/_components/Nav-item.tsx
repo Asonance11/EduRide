@@ -62,6 +62,11 @@ function getDriverRoutes() {
       href: '/dashboard',
     },
     {
+      label: 'Available Rides',
+      icon: <CarTaxiFront className="h-4 w-4 mr-2" />,
+      href: '/dashboard/available-rides',
+    },
+    {
       label: 'History',
       icon: <History className="h-4 w-4 mr-2" />,
       href: '/dashboard/history',
