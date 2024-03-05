@@ -56,6 +56,14 @@ export const fetchAvailableRides = async () => {
       where: {
         status: 'BOOKED',
       },
+            include: {
+                passenger:{
+                    select: {
+                        firstname: true,
+                        lastname: true,
+                    }
+                }
+            }
     });
 
     return rides;
