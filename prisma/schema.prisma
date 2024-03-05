@@ -18,6 +18,7 @@ enum UserRole {
 
 enum RideStatus {
     BOOKED
+    ACCEPTED
     IN_PROGRESS
     COMPLETED
     CANCELLED
@@ -41,12 +42,11 @@ model User {
 
 model Ride {
     id          String     @id @default(auto()) @map("_id") @db.ObjectId
-    rideId      String     @unique
     status      RideStatus @default(BOOKED)
     pickupPoint String
     destination String
-    startTime   DateTime
-    endTime     DateTime
+    startTime   DateTime?
+    endTime     DateTime?
     passenger   User       @relation("passengerRides", fields: [passengerId], references: [id])
     passengerId String     @db.ObjectId
     driver      User?      @relation("driverRides", fields: [driverId], references: [id])
