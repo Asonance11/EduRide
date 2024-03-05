@@ -1,5 +1,10 @@
 import { UserProfile } from '@clerk/nextjs';
+import { Metadata } from 'next';
 import React from 'react';
+
+export const metadata: Metadata = {
+  title: 'Book Ride',
+};
 
 export default function SettingPage() {
   return (
