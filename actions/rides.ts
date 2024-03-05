@@ -37,33 +37,18 @@ export const bookRide = async (data: z.infer<typeof bookRideFormSchema>) => {
 
 export const fetchAvailableRides = async () => {
   try {
-    const profile = await currentProfile();
-    if (!profile) {
-      return {
-        error: 'Unauthorized, Log in to continue',
-      };
-    }
-
-    const role = await currentRole();
-
-    if (role !== 'DRIVER') {
-      return {
-        error: 'Only drivers can book rides',
-      };
-    }
-
     const rides = await db.ride.findMany({
       where: {
         status: 'BOOKED',
       },
-            include: {
-                passenger:{
-                    select: {
-                        firstname: true,
-                        lastname: true,
-                    }
-                }
-            }
+      include: {
+        passenger: {
+          select: {
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
     });
 
     return rides;
