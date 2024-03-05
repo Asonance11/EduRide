@@ -6,8 +6,6 @@ import { Toaster } from 'sonner';
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-sans',
 });
 
 export const metadata: Metadata = {
@@ -26,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.variable)}>
+      <body className={cn(inter.className)}>
         <Toaster richColors />
         {children}
       </body>
