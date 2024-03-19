@@ -2,8 +2,9 @@
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUser } from '@clerk/nextjs';
-import Image from 'next/image';
+// import Image from 'next/image';
 import React from 'react';
+// import cityDriver from '@/public/city-driver-pana.svg';
 
 export default function UserInfo() {
   const { user, isLoaded } = useUser();
@@ -13,16 +14,12 @@ export default function UserInfo() {
   }
 
   return (
-    <div className="flex items-center gap-x-4">
-      <div className="w-[60px] h-[60px] relative">
-        <Image
-          fill
-          src={user?.imageUrl!}
-          alt="User"
-          className="rounded-md object-cover"
-        />
+    <div className="rounded bg-[#5f6164] px-8 py-4 w-full text-white flex justify-between">
+      <div className="flex flex-col">
+        <h2 className="text-2xl">Welcome back,</h2>
+        <p className="text-sm">{user?.fullName}</p>
       </div>
-      <p className="font-semibold">{user?.fullName}</p>
+      {/*<Image src={cityDriver} alt="City driver Logo" width={400} height={150} /> */}
     </div>
   );
 }
