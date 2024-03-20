@@ -78,3 +78,5 @@ export const fetchAvailableRides = async () => {
     throw error;
   }
 };
+
+export const approveRide = async () => {};
