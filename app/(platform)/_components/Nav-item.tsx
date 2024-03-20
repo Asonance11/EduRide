@@ -1,36 +1,50 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { CarTaxiFront, History, LayoutDashboard, Settings } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { UserRole } from '@prisma/client';
 import { currentRole } from '@/lib/auth';
+import { Skeleton } from '@/components/ui/skeleton';
+import { driverRoutes, studentRoutes, adminRoutes } from './Routes';
 
 export default function NavItem() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [loading, setLoading] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
+        setLoading(true);
         const role = await currentRole();
         setUserRole(role);
       } catch (error) {
         console.log('Error fetching user role', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserRole();
   }, []);
 
-  const routes = userRole === 'DRIVER' ? getDriverRoutes() : getStudentRoutes();
+  const routes =
+    userRole === 'DRIVER'
+      ? driverRoutes()
+      : userRole === 'ADMIN'
+        ? adminRoutes()
+        : studentRoutes();
 
   const onClick = (href: string) => {
     router.push(href);
   };
+
+  if (loading) {
+    return <NavItem.Skeleton />;
+  }
 
   return (
     <div>
@@ -54,52 +68,10 @@ export default function NavItem() {
   );
 }
 
-function getDriverRoutes() {
-  return [
-    {
-      label: 'Dashboard',
-      icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
-      href: '/dashboard',
-    },
-    {
-      label: 'Available Rides',
-      icon: <CarTaxiFront className="h-4 w-4 mr-2" />,
-      href: '/dashboard/available-rides',
-    },
-    {
-      label: 'History',
-      icon: <History className="h-4 w-4 mr-2" />,
-      href: '/dashboard/history',
-    },
-    {
-      label: 'Settings',
-      icon: <Settings className="h-4 w-4 mr-2" />,
-      href: '/dashboard/settings',
-    },
-  ];
-}
-
-function getStudentRoutes() {
-  return [
-    {
-      label: 'Dashboard',
-      icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
-      href: '/dashboard',
-    },
-    {
-      label: 'Book Ride',
-      icon: <CarTaxiFront className="h-4 w-4 mr-2" />,
-      href: '/dashboard/book-ride',
-    },
-    {
-      label: 'History',
-      icon: <History className="h-4 w-4 mr-2" />,
-      href: '/dashboard/history',
-    },
-    {
-      label: 'Settings',
-      icon: <Settings className="h-4 w-4 mr-2" />,
-      href: '/dashboard/settings',
-    },
-  ];
-}
+NavItem.Skeleton = function SkeletonInfo() {
+  return (
+    <div className="flex items-center mb-1">
+      <Skeleton className="w-full h-6 mb-1" />
+    </div>
+  );
+};
