@@ -17,8 +17,8 @@ export default function NavItem() {
 
   useEffect(() => {
     const fetchUserRole = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
         const role = await currentRole();
         setUserRole(role);
       } catch (error) {
@@ -36,7 +36,9 @@ export default function NavItem() {
       ? driverRoutes()
       : userRole === 'ADMIN'
         ? adminRoutes()
-        : studentRoutes();
+        : userRole === 'STUDENT'
+          ? studentRoutes()
+          : [];
 
   const onClick = (href: string) => {
     router.push(href);
@@ -71,6 +73,8 @@ export default function NavItem() {
 NavItem.Skeleton = function SkeletonInfo() {
   return (
     <div className="flex items-center mb-1">
+      <Skeleton className="w-full h-6 mb-1" />
+      <Skeleton className="w-full h-6 mb-1" />
       <Skeleton className="w-full h-6 mb-1" />
     </div>
   );
