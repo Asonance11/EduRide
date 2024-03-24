@@ -5,7 +5,7 @@ import db from './db';
 export const currentRole = async () => {
   const loggedUser = await currentUser();
   if (!loggedUser) {
-    return null;
+    throw new Error('User not logged in');
   }
 
   const user = await db.user.findUnique({
@@ -15,7 +15,7 @@ export const currentRole = async () => {
   });
 
   if (!user) {
-    return null;
+    throw new Error('User not found');
   }
 
   return user.role;
