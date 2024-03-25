@@ -2,55 +2,69 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mongodb"
-    url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
-    ADMIN
-    STUDENT
-    DRIVER
+  ADMIN
+  STUDENT
+  DRIVER
 }
 
 enum RideStatus {
-    BOOKED
-    ACCEPTED
-    IN_PROGRESS
-    COMPLETED
-    CANCELLED
+  BOOKED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
 
 model User {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    userId    String   @unique
-    email     String   @unique
-    firstname String
-    lastname  String
-    imageUrl  String
-    role      UserRole @default(STUDENT)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique
+  email     String   @unique
+  firstname String
+  lastname  String
+  imageUrl  String
+  role      UserRole @default(STUDENT)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    ridesAsPassenger Ride[] @relation("passengerRides")
-    ridesAsDriver    Ride[] @relation("driverRides")
+  ridesAsPassenger Ride[] @relation("passengerRides")
+  ridesAsDriver    Ride[] @relation("driverRides")
 }
 
 model Ride {
-    id          String     @id @default(auto()) @map("_id") @db.ObjectId
-    status      RideStatus @default(BOOKED)
-    pickupPoint String
-    destination String
-    startTime   DateTime?
-    endTime     DateTime?
-    passenger   User       @relation("passengerRides", fields: [passengerId], references: [id])
-    passengerId String     @db.ObjectId
-    driver      User?      @relation("driverRides", fields: [driverId], references: [id])
-    driverId    String?    @db.ObjectId
-    createdAt   DateTime   @default(now())
-    updatedAt   DateTime   @updatedAt
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  status        RideStatus @default(BOOKED)
+  pickupPoint   Place      @relation("pickupPlace", fields: [pickupPointId], references: [id])
+  pickupPointId String     @db.ObjectId
+  destination   Place      @relation("destinationPlace", fields: [destinationId], references: [id])
+  destinationId String     @db.ObjectId
+  startTime     DateTime?
+  endTime       DateTime?
+  passenger     User       @relation("passengerRides", fields: [passengerId], references: [id])
+  passengerId   String     @db.ObjectId
+  driver        User?      @relation("driverRides", fields: [driverId], references: [id])
+  driverId      String?    @db.ObjectId
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Place {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pickupRides      Ride[] @relation("pickupPlace")
+  destinationRides Ride[] @relation("destinationPlace")
 }
