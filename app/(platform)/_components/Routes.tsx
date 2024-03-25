@@ -65,7 +65,7 @@ export function adminRoutes() {
     {
       label: 'Create Route',
       icon: <Plus className="h-4 w-4 mr-2" />,
-      href: '/dashboard/create-route',
+      href: '/dashboard/create-place',
     },
   ];
 }
