@@ -50,6 +50,20 @@ export default function BookRideForm({ places }: BookRideFormProps) {
     console.log(values);
     const sourcePlace = await getPlaceByName(values.pickupPoint);
     const destinationPlace = await getPlaceByName(values.destination);
+    const response = await bookRide(
+      sourcePlace?.id as string,
+      destinationPlace?.id as string,
+    );
+    if (response?.error) {
+      return toast.error(response.error);
+    }
+
+    return toast.success('Ride booked successfully');
+  }
+  async function viewMap(values: z.infer<typeof bookRideFormSchema>) {
+    console.log(values);
+    const sourcePlace = await getPlaceByName(values.pickupPoint);
+    const destinationPlace = await getPlaceByName(values.destination);
     setPickup({
       name: sourcePlace?.name,
       lat: sourcePlace?.latitude,
@@ -60,12 +74,6 @@ export default function BookRideForm({ places }: BookRideFormProps) {
       lat: destinationPlace?.latitude,
       lng: destinationPlace?.longitude,
     });
-    // const response = await bookRide(values);
-    // if (response?.error) {
-    //   return toast.error(response.error);
-    // }
-    //
-    // return toast.success('Ride booked successfully');
   }
 
   return (
@@ -121,9 +129,19 @@ export default function BookRideForm({ places }: BookRideFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">
-          {form.formState.isSubmitting ? <Loader /> : 'Book Ride'}
-        </Button>
+        <div className="flex items-center justify-between space-x-4">
+          <Button type="submit">
+            {form.formState.isSubmitting ? <Loader /> : 'Book Ride'}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              viewMap(form.getValues());
+            }}
+          >
+            {form.formState.isSubmitting ? <Loader /> : 'View Map'}
+          </Button>
+        </div>
       </form>
     </Form>
   );

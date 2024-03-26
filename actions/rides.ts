@@ -14,7 +14,10 @@ async function getUserInfo() {
   return { profile, role };
 }
 
-export const bookRide = async (data: z.infer<typeof bookRideFormSchema>) => {
+export const bookRide = async (
+  pickupPointId: string,
+  destinationId: string,
+) => {
   try {
     const { profile, role } = await getUserInfo();
 
@@ -40,12 +43,32 @@ export const bookRide = async (data: z.infer<typeof bookRideFormSchema>) => {
           'You have a ride already booked, please complete or cancel it before booking another ride.',
       };
     }
+    const pickupPlace = await db.place.findUnique({
+      where: {
+        id: pickupPointId,
+      },
+    });
+
+    const destinationPlace = await db.place.findUnique({
+      where: {
+        id: destinationId,
+      },
+    });
+
+    if (!pickupPlace || !destinationPlace) {
+      throw new Error('Invalid pickup or destination place ID');
+    }
 
     const createdRide = await db.ride.create({
       data: {
-        pickupPoint: data.pickupPoint,
-        destination: data.destination,
-        passengerId: profile.id,
+        status: 'BOOKED',
+        pickupPoint: { connect: { id: pickupPointId } },
+        destination: { connect: { id: destinationId } },
+        passenger: {
+          connect: {
+            id: profile.id,
+          },
+        },
       },
     });
 
@@ -70,6 +93,8 @@ export const fetchAvailableRides = async () => {
             lastname: true,
           },
         },
+        pickupPoint: true,
+        destination: true,
       },
     });
 
@@ -80,3 +105,22 @@ export const fetchAvailableRides = async () => {
 };
 
 export const approveRide = async () => {};
+
+export const getAllRides = async () => {
+  try {
+    const rides = await db.ride.findMany({
+      include: {
+        passenger: {
+          select: {
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
+    });
+
+    return rides;
+  } catch (error) {
+    throw error;
+  }
+};

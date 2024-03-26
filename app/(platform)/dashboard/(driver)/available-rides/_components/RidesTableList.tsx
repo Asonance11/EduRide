@@ -14,7 +14,11 @@ import { Prisma } from '@prisma/client';
 import React from 'react';
 
 type RidesWithPassenger = Prisma.RideGetPayload<{
-  include: { passenger: { select: { firstname: true; lastname: true } } };
+  include: {
+    passenger: { select: { firstname: true; lastname: true } };
+    pickupPoint: true;
+    destination: true;
+  };
 }>;
 
 const RidesTableList: React.FC<{ rides: RidesWithPassenger[] }> = ({
@@ -38,8 +42,8 @@ const RidesTableList: React.FC<{ rides: RidesWithPassenger[] }> = ({
               <TableCell>
                 {ride.passenger.firstname} {ride.passenger.lastname}
               </TableCell>
-              <TableCell>{ride.pickupPoint}</TableCell>
-              <TableCell>{ride.destination}</TableCell>
+              <TableCell>{ride.pickupPoint.name}</TableCell>
+              <TableCell>{ride.destination.name}</TableCell>
               <TableCell>
                 <Button variant="default">Accept</Button>
               </TableCell>
