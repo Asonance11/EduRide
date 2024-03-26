@@ -1,6 +1,8 @@
 'use client';
 
+import { getPlaceByName } from '@/actions/places';
 import { bookRide } from '@/actions/rides';
+import Loader from '@/components/Loader';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -11,15 +13,30 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useSourceStore } from '@/stores/pickupStore';
 import { bookRideFormSchema } from '@/types/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Place } from '@prisma/client';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-export default function BookRideForm() {
+interface BookRideFormProps {
+  places: Place[];
+}
+
+export default function BookRideForm({ places }: BookRideFormProps) {
+  const source = useSourceStore((state) => state.source);
+  const setSource = useSourceStore((state) => state.setSource);
+
   const form = useForm<z.infer<typeof bookRideFormSchema>>({
     resolver: zodResolver(bookRideFormSchema),
     defaultValues: {
@@ -30,12 +47,21 @@ export default function BookRideForm() {
 
   async function onSubmit(values: z.infer<typeof bookRideFormSchema>) {
     console.log(values);
-    const response = await bookRide(values);
-    if (response?.error) {
-      return toast.error(response.error);
-    }
+    const sourcePlace = await getPlaceByName(values.pickupPoint);
+    console.log(sourcePlace);
+    setSource({
+      name: sourcePlace?.name!,
+      latitude: sourcePlace?.latitude!,
+      longitude: sourcePlace?.longitude!,
+    });
 
-    return toast.success('Ride booked successfully');
+    console.log(source);
+    // const response = await bookRide(values);
+    // if (response?.error) {
+    //   return toast.error(response.error);
+    // }
+    //
+    // return toast.success('Ride booked successfully');
   }
 
   return (
@@ -47,9 +73,20 @@ export default function BookRideForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Pickup Point</FormLabel>
-              <FormControl>
-                <Input placeholder="Nelson Mandela" {...field} required />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a pickup point" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {places.map((place) => (
+                    <SelectItem key={place.id} value={place.name}>
+                      {place.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormDescription>This is your pickup point</FormDescription>
               <FormMessage />
             </FormItem>
@@ -61,16 +98,27 @@ export default function BookRideForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Pickup Point</FormLabel>
-              <FormControl>
-                <Input placeholder="SAT" {...field} required />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a destination" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {places.map((place) => (
+                    <SelectItem key={place.id} value={place.name}>
+                      {place.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormDescription>This is your destination</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          Book Ride
+        <Button type="submit">
+          {form.formState.isSubmitting ? <Loader /> : 'Book Ride'}
         </Button>
       </form>
     </Form>
