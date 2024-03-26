@@ -20,11 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DestinationContext } from '@/context/DestinationContext';
+import { SourceContext } from '@/context/SourceContext';
 import { useSourceStore } from '@/stores/pickupStore';
 import { bookRideFormSchema } from '@/types/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Place } from '@prisma/client';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -34,9 +36,8 @@ interface BookRideFormProps {
 }
 
 export default function BookRideForm({ places }: BookRideFormProps) {
-  const source = useSourceStore((state) => state.source);
-  const setSource = useSourceStore((state) => state.setSource);
-
+  const { pickup, setPickup } = useContext(SourceContext);
+  const { destination, setDestination } = useContext(DestinationContext);
   const form = useForm<z.infer<typeof bookRideFormSchema>>({
     resolver: zodResolver(bookRideFormSchema),
     defaultValues: {
@@ -48,14 +49,17 @@ export default function BookRideForm({ places }: BookRideFormProps) {
   async function onSubmit(values: z.infer<typeof bookRideFormSchema>) {
     console.log(values);
     const sourcePlace = await getPlaceByName(values.pickupPoint);
-    console.log(sourcePlace);
-    setSource({
-      name: sourcePlace?.name!,
-      latitude: sourcePlace?.latitude!,
-      longitude: sourcePlace?.longitude!,
+    const destinationPlace = await getPlaceByName(values.destination);
+    setPickup({
+      name: sourcePlace?.name,
+      lat: sourcePlace?.latitude,
+      lng: sourcePlace?.longitude,
     });
-
-    console.log(source);
+    setDestination({
+      name: destinationPlace?.name,
+      lat: destinationPlace?.latitude,
+      lng: destinationPlace?.longitude,
+    });
     // const response = await bookRide(values);
     // if (response?.error) {
     //   return toast.error(response.error);
