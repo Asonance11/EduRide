@@ -1,96 +1,92 @@
 'use client';
 
+import { createPlace } from '@/actions/createPlace';
+import Loader from '@/components/Loader';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { createPlaceFormSchema } from '@/types/schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import { toast } from 'sonner';
 
 function CreatePlaceForm() {
   // testing places api
   const [value, setValue] = useState<any>(null);
-  const form = useForm<z.infer<typeof createPlaceFormSchema>>({
-    resolver: zodResolver(createPlaceFormSchema),
-    defaultValues: {
-      name: '',
-      alias: '',
-    },
-  });
+  const [name, setName] = useState<string>('');
+  const [long, setLong] = useState<number>(0);
+  const [lat, setLat] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  function onSubmit(values: z.infer<typeof createPlaceFormSchema>) {
-    console.log(values);
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      getlatandlng(value);
+      await createPlace(name, lat, long);
+      toast.success('Place created');
+    } catch (error) {
+      toast.error('Failed to create place');
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function getlatandlng(place: any) {
+    const placeId = place.value.place_id;
+    const service = new google.maps.places.PlacesService(
+      document.createElement('div'),
+    );
+    service.getDetails({ placeId }, (place, status) => {
+      if (status == 'OK' && place?.geometry && place.geometry.location) {
+        const { lat, lng } = place.geometry.location;
+        if (!place.name) return console.log('no name');
+        const name = place.name;
+        setName(name);
+        setLat(lat());
+        setLong(lng());
+      }
+    });
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name of Place</FormLabel>
-              <FormControl>
-                <Input placeholder="Nelson Mandela" {...field} required />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="alias"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alias of Place</FormLabel>
-              <FormControl>
-                <Input placeholder="Mandela" {...field} required />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <GooglePlacesAutocomplete
-          apiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
-          selectProps={{
-            value,
-            onChange: setValue,
-            isClearable: true,
-            placeholder: 'Search for a place',
-            className: 'w-full',
-            components: {
-              DropdownIndicator: () => null,
-            },
-            styles: {
-              input: (provided) => ({
-                ...provided,
-                color: 'blue',
-              }),
-              option: (provided) => ({
-                ...provided,
-                color: 'blue',
-              }),
-              singleValue: (provided) => ({
-                ...provided,
-                color: 'blue',
-              }),
-            },
-          }}
-        />
-        <Button type="submit">Create Place</Button>
-      </form>
-    </Form>
+    <form
+      className="space-y-8"
+      onSubmit={(e) => {
+        onSubmit(e);
+      }}
+    >
+      <GooglePlacesAutocomplete
+        apiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
+        selectProps={{
+          name: 'location',
+          value,
+          onChange: (place) => {
+            getlatandlng(place);
+            setValue(place);
+          },
+          isClearable: true,
+          placeholder: 'Search for a place',
+          className: 'w-full',
+          components: {
+            DropdownIndicator: () => null,
+          },
+          styles: {
+            input: (provided) => ({
+              ...provided,
+              color: 'black',
+            }),
+            option: (provided) => ({
+              ...provided,
+              color: 'black',
+            }),
+            singleValue: (provided) => ({
+              ...provided,
+              color: 'black',
+            }),
+          },
+        }}
+      />
+      <Button type="submit">{loading ? <Loader /> : 'Create Place'}</Button>
+    </form>
   );
 }
 
