@@ -1,5 +1,6 @@
 'use client';
 
+import { approveRide } from '@/actions/rides';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Prisma } from '@prisma/client';
 import React from 'react';
+import { toast } from 'sonner';
 
 type RidesWithPassenger = Prisma.RideGetPayload<{
   include: {
@@ -24,6 +26,13 @@ type RidesWithPassenger = Prisma.RideGetPayload<{
 const RidesTableList: React.FC<{ rides: RidesWithPassenger[] }> = ({
   rides,
 }) => {
+  async function onConfirmRide(id: string) {
+    const response = await approveRide(id);
+    if (response?.error) {
+      return toast.error(response.error);
+    }
+    toast.success('Ride approved successfully');
+  }
   return (
     <div>
       <Table>
@@ -45,7 +54,14 @@ const RidesTableList: React.FC<{ rides: RidesWithPassenger[] }> = ({
               <TableCell>{ride.pickupPoint.name}</TableCell>
               <TableCell>{ride.destination.name}</TableCell>
               <TableCell>
-                <Button variant="default">Accept</Button>
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    onConfirmRide(ride.id);
+                  }}
+                >
+                  Accept
+                </Button>
               </TableCell>
             </TableRow>
           ))}
